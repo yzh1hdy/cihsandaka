@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh"></html>
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,34 +8,31 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500&display=swap');
 
         .header {
-            color: #D3BF91; /* 设置文字颜色 */
-            font-size: 1.2rem; /* 设置文字大小 */
-            margin-top: -1rem; /* 设置底部外边距，以便与日期显示区分开 */
-            text-align: center; /* 文字居中 */
+            color: #D3BF91;
+            font-size: 1.2rem;
+            margin-top: -1rem;
+            text-align: center;
         }
         .body-line-top {
-            border-top: 2px solid #676E7B; /* 设置顶部线条颜色和粗细 */
+            border-top: 2px solid #676E7B;
             width: 110%;
-            margin-bottom: 1.5rem; /* 设置底部外边距 */
+            margin-bottom: 1.5rem;
         }
-
         .body-line-top-unshown {
-            border-top: 2px solid #3D4454; /* 设置顶部线条颜色和粗细 */
+            border-top: 2px solid #3D4454;
             width: 110%;
-            margin-bottom: 0.55rem; /* 设置底部外边距 */
+            margin-bottom: 0.55rem;
         }
-
         .body-line-bottom {
-            border-bottom: 2px solid #676E7B; /* 设置底部线条颜色和粗细 */
+            border-bottom: 2px solid #676E7B;
             width: 110%;
-            margin-top: 1.5rem; /* 设置顶部外边距 */
+            margin-top: 1.5rem;
         }
         .body-line-bottom-unshown {
-            border-bottom: 2px solid #3D4454; /* 设置底部线条颜色和粗细 */
+            border-bottom: 2px solid #3D4454;
             width: 110%;
-            margin-top: 0.55rem; /* 设置顶部外边距 */
+            margin-top: 0.55rem;
         }
-
         body {
             background-image: url('https://img.wjwj.top/2025/01/09/efafe422cfcb2707807e44ebc6390bd7.jpeg');
             background-size: cover;
@@ -49,7 +46,6 @@
             height: 100vh;
             background-color: #ffffff;
         }
-
         .modal {
             position: fixed;
             inset: 0;
@@ -58,7 +54,6 @@
             justify-content: center;
             align-items: center;
         }
-
         .modal-content {
             background-color: #3D4454;
             padding: 2rem;
@@ -70,13 +65,12 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
+            opacity: 0;
         }
-
         button {
-            margin-top: auto; /* 将按钮推到容器底部 */
-            margin-bottom: 2rem; /* 增加底部间距 */
+            margin-top: auto;
+            margin-bottom: 2rem;
         }
-
         .date-display {
             color: white;
             font-size: 1.5rem;
@@ -86,7 +80,6 @@
             align-items: center;
             justify-content: center;
         }
-
         .copy-button {
             width: calc(115% - 2rem);
             background-color: #EBE5D7;
@@ -103,7 +96,6 @@
             cursor: pointer;
             font-size: 1rem;
         }
-
         .circle-container {
             position: absolute;
             left: 0.35rem;
@@ -115,16 +107,36 @@
             align-items: center;
             justify-content: center;
         }
-
         .inner-circle {
             width: 0.75rem;
             height: 0.75rem;
             border: 0.15rem solid #EACA40;
             border-radius: 50%;
         }
+        #playButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+            padding: 9000px 9000px;
+            font-size: 18px;
+            background-color: rgba(255, 255, 255, 0);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+        }
     </style>
 </head>
 <body>
+    <div id="videoContainer" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background-color: black;">
+        <video id="introVideo" style="width: 100%; height: 100%; object-fit: cover;" preload="auto" playsinline autoplay>
+            <source src="https://img.wjwj.top/2025/01/15/ddeda3bdff5c89e18842ef7c84850f5b.mp4" type="video/mp4">
+        </video>
+        <div id="loadingText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px;">加载中...</div>
+        <button id="playButton"> </button>
+    </div>
     <div class="modal">
         <div class="modal-content">
             <div id="header" class="header">今日打卡内容</div>
@@ -200,7 +212,7 @@
             document.getElementById('dateDisplay').textContent = scrambledText;
             return scrambledText;
         }
-        //设计要求：是当天的日期，但是不是数字形式，而是字母，0用A，1用B等等。比如2025年01月08日，就写成“CACFABAI”。日期后面接着字符“HDYHJDK”。
+
         const dateString = updateDateDisplay();
 
         document.getElementById('copyButton').addEventListener('click', function() {
@@ -211,6 +223,86 @@
                 }, 3000);
             });
         });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('introVideo');
+            const videoContainer = document.getElementById('videoContainer');
+            const modalContent = document.querySelector('.modal-content');
+            const loadingText = document.getElementById('loadingText');
+            const playButton = document.getElementById('playButton');
+
+            function log(message) {
+                console.log(`[${new Date().toISOString()}] ${message}`);
+            }
+
+            function showPlayButton() {
+                playButton.style.display = 'block';
+                loadingText.style.display = 'none';
+            }
+
+            function hidePlayButton() {
+                playButton.style.display = 'none';
+            }
+
+            function playVideo() {
+                log('Attempting to play video');
+                hidePlayButton();
+                video.play().then(() => {
+                    log('Video started playing successfully');
+                }).catch(error => {
+                    log(`Error playing video: ${error}`);
+                    showPlayButton();
+                });
+            }
+
+            function showMainContent() {
+                log('Showing main content');
+                videoContainer.style.transition = 'opacity 1s ease-out';
+                videoContainer.style.opacity = '0';
+                modalContent.style.transition = 'opacity 1s ease-in';
+                modalContent.style.opacity = '1';
+                setTimeout(() => {
+                    videoContainer.style.display = 'none';
+                }, 1000);
+            }
+
+            video.addEventListener('loadedmetadata', () => {
+                log('Video metadata loaded');
+            });
+
+            video.addEventListener('canplay', () => {
+                log('Video can play');
+                loadingText.style.display = 'none';
+                playVideo();
+            });
+
+            video.addEventListener('playing', () => {
+                log('Video is playing');
+                hidePlayButton();
+            });
+
+            video.addEventListener('ended', () => {
+                log('Video ended');
+                showMainContent();
+            });
+
+            playButton.addEventListener('click', playVideo);
+
+            // Attempt to play the video immediately
+            playVideo();
+
+            // Fallback in case video doesn't play
+            setTimeout(() => {
+                if (video.paused) {
+                    log('Video did not start playing after 5 seconds. Showing play button.');
+                    showPlayButton();
+                }
+            }, 5000);
+
+            // Initially hide the modal content
+            modalContent.style.opacity = '0';
+        });
     </script>
 </body>
 </html>
+
