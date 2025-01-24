@@ -1,568 +1,307 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全屏图片播放器</title>
+    <title>每日打卡内容</title>
     <style>
-        @font-face {
-            font-family: 'HarmonyOS Sans SC Black';
-            src: url('HarmonyOS_Sans_SC_Black.ttf') format('truetype');
-            font-weight: 900;
-            font-style: normal;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500&display=swap');
 
-        body, html {
+        .header {
+            color: #D3BF91;
+            font-size: 1.2rem;
+            margin-top: -1rem;
+            text-align: center;
+        }
+        .body-line-top {
+            border-top: 2px solid #676E7B;
+            width: 110%;
+            margin-bottom: 1.5rem;
+        }
+        .body-line-top-unshown {
+            border-top: 2px solid #3D4454;
+            width: 110%;
+            margin-bottom: 0.55rem;
+        }
+        .body-line-bottom {
+            border-bottom: 2px solid #676E7B;
+            width: 110%;
+            margin-top: 1.5rem;
+        }
+        .body-line-bottom-unshown {
+            border-bottom: 2px solid #3D4454;
+            width: 110%;
+            margin-top: 0.55rem;
+        }
+        body {
+            background-image: url('https://img.wjwj.top/2025/01/09/efafe422cfcb2707807e44ebc6390bd7.jpeg');
+            background-size: cover;
+            background-position: center;
+            font-family: 'Noto Sans SC', sans-serif;
             margin: 0;
             padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: 'HarmonyOS Sans SC Black', sans-serif;
-            background-color: #0a0a0f;
-            color: #e0e0ff;
-        }
-
-        #app {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #controls {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(0deg, rgba(16, 20, 35, 0.95) 0%, rgba(16, 20, 35, 0.85) 100%);
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(0, 195, 255, 0.3);
-            color: #e0e0ff;
-            padding: 20px;
-            z-index: 1000;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        #controls.hidden {
-            transform: translateY(100%);
-            opacity: 0;
-        }
-
-        #controls::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(0, 195, 255, 0.5) 20%, 
-                rgba(0, 195, 255, 0.8) 50%,
-                rgba(0, 195, 255, 0.5) 80%, 
-                transparent 100%);
-        }
-
-        #imageContainer {
-            flex-grow: 1;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #fff;  /* 改为白色背景 */
+            height: 100vh;
+            background-color: #ffffff;
         }
-
-        #imageContainer canvas {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
+        .modal {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-
-        .slider-container {
+        .modal-content {
+            background-color: #3D4454;
+            padding: 2rem;
+            border-radius: 0.6rem;
+            box-shadow: 0 20px 55px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            width: 480px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            opacity: 0;
+        }
+        button {
+            margin-top: auto;
+            margin-bottom: 2rem;
+        }
+        .date-display {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            flex-grow: 1;
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
+            justify-content: center;
         }
-
-        .slider-container label {
-            margin-right: 10px;
-            min-width: 80px;
-        }
-
-        input[type="range"] {
-            flex-grow: 1;
-            appearance: none;
-            -webkit-appearance: none;
-            width: 100%;
-            height: 4px;
-            border-radius: 2px;
-            background: linear-gradient(90deg, rgba(0, 195, 255, 0.3) 0%, rgba(0, 195, 255, 0.1) 100%);
-            outline: none;
-            transition: background 0.3s ease;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #00c3ff;
+        .copy-button {
+            width: calc(115% - 2rem);
+            background-color: #EBE5D7;
+            color: #3D4454;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: -1.2rem;
+            margin-top: auto;
+            position: relative;
+            border: none;
             cursor: pointer;
-            border: 2px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 15px rgba(0, 195, 255, 0.8);
-            transition: all 0.3s ease;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 1rem;
         }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
+        .circle-container {
+            position: absolute;
+            left: 0.35rem;
+            width: 1.75rem;
+            height: 1.75rem;
+            background-color: #313032;
             border-radius: 50%;
-            background: #00ffff;
-            cursor: pointer;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
-            transition: all 0.3s ease;
-            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        input[type="range"]::-webkit-slider-runnable-track {
-            transition: all 0.3s ease;
+        .inner-circle {
+            width: 0.75rem;
+            height: 0.75rem;
+            border: 0.15rem solid #EACA40;
+            border-radius: 50%;
         }
-
-        input[type="range"]::-moz-range-track {
-            transition: all 0.3s ease;
-        }
-
-        button {
-            margin-right: 10px;
-            padding: 12px 24px;
-            font-family: 'HarmonyOS Sans SC Black', sans-serif;
-            font-size: 16px;
-            color: #00c3ff;
-            background: rgba(0, 195, 255, 0.1);
-            border: 1px solid rgba(0, 195, 255, 0.5);
+        #playButton {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1001;
+            padding: 9000px 9000px;
+            font-size: 18px;
+            background-color: rgba(255, 255, 255, 0);
+            border: none;
             border-radius: 5px;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                120deg,
-                transparent,
-                rgba(0, 195, 255, 0.2),
-                transparent
-            );
-            transform: translateX(-100%);
-        }
-
-        button:hover {
-            color: #23ccff;
-            background: rgba(0, 195, 255, 0.3);
-            box-shadow: 
-                0 0 10px rgba(0, 195, 255, 0.5),
-                0 0 20px rgba(0, 195, 255, 0.3),
-                0 0 30px rgba(0, 195, 255, 0.1);
-            border-color: rgba(0, 195, 255, 0.8);
-        }
-
-        button:hover::before {
-            animation: shine 1.5s infinite;
-        }
-
-        button:active {
-            background: rgba(0, 195, 255, 0.4);
-            box-shadow: 
-                0 0 15px rgba(0, 195, 255, 0.6),
-                0 0 30px rgba(0, 195, 255, 0.4);
-        }
-
-        @keyframes shine {
-            0% {
-                transform: translateX(-100%);
-            }
-            20%, 100% {
-                transform: translateX(100%);
-            }
-        }
-
-        #speedTypeContainer {
-            margin-bottom: 20px;
-            display: flex;
-            gap: 50px;
-            position: relative;
-            padding-left: 20px;  /* 添加左侧内边距，将选项向右移动 */
-            justify-content: flex-start;  /* 确保左对齐 */
-        }
-
-        #speedTypeContainer label {
-            position: relative;
-            cursor: pointer;
-            color: rgba(0, 195, 255, 0.5);
-            transition: all 0.3s ease;
-            padding: 5px 5px;  /* 增加水平内边距 */
-        }
-
-        #speedTypeContainer input[type="radio"] {
-            display: none;
-        }
-
-        #speedTypeContainer input[type="radio"]:checked + span {
-            color: #00c3ff;
-            text-shadow: 0 0 10px rgba(0, 195, 255, 0.5);
-            transition: all 0.5s ease;
-        }
-
-        #speedTypeContainer span {
-            position: relative;
-            display: inline-block;
-            bottom: -6px;
-            transition: all 0.5s ease;
-        }
-
-        #speedTypeContainer span::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: -25px;  /* 向左延伸 */
-            right: -25px; /* 向右延伸 */
-            height: 2px;
-            background: rgba(0, 195, 255, 0.3);
-            transition: all 0.5s ease;
-            transform-origin: center;
-            transform: scaleX(0.8);
-            opacity: 0.5;
-        }
-
-        #speedTypeContainer input[type="radio"]:checked + span::after {
-            background: #00c3ff;
-            box-shadow: 
-                0 0 5px #00c3ff,
-                0 0 10px #00c3ff,
-                0 0 15px #00c3ff;
-            transform: scaleX(1);
-            opacity: 1;
-            bottom: -6px;  /* 这里也要相应修改 */
-        }
-
-        #speedTypeContainer label:hover span::after {
-            transform: scaleX(1);
-            background: #00c3ff;
-            opacity: 0.8;
-        }
-
-        input[type="file"] {
-            margin-bottom: 20px;
-            color: #00c3ff;
-            background: rgba(0, 195, 255, 0.1);
-            border: 1px dashed rgba(0, 195, 255, 0.5);
-            padding: 10px;
-            border-radius: 4px;
-            color: #00c3ff;
-            width: calc(100% - 22px);
-            margin-bottom: 20px;
-        }
-
-        input[type="file"]::-webkit-file-upload-button {
-            background: rgba(0, 195, 255, 0.2);
-            border: 1px solid rgba(0, 195, 255, 0.5);
-            color: #00c3ff;
-            padding: 8px 16px;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        input[type="file"]::-webkit-file-upload-button:hover {
-            background: rgba(0, 195, 255, 0.3);
-            box-shadow: 0 0 10px rgba(0, 195, 255, 0.3);
-        }
-
-        #speedValue {
-            min-width: 80px;
-            text-align: right;
-            color: #00c3ff;
-        }
-
-        .neon-text {
-            color: #00c3ff;
-            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5), 0 0 10px rgba(0, 255, 255, 0.3), 0 0 15px rgba(0, 255, 255, 0.1);
-            color: #00c3ff;
-            text-shadow: 0 0 5px rgba(0, 195, 255, 0.5),
-                         0 0 10px rgba(0, 195, 255, 0.3),
-                         0 0 15px rgba(0, 195, 255, 0.1);
-            letter-spacing: 1px;
-        }
-
-        #imageUpload.hidden {
             display: none;
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <div id="controls" class="controls">
-            <input type="file" id="imageUpload" multiple accept="image/*">
-            <div id="speedTypeContainer">
-                <label>
-                    <input type="radio" name="speedType" value="fps" checked>
-                    <span>帧率</span>
-                </label>
-                <label>
-                    <input type="radio" name="speedType" value="seconds">
-                    <span>秒数</span>
-                </label>
-                <label>
-                    <input type="radio" name="speedType" value="minutes">
-                    <span>分钟</span>
-                </label>
-            </div>
-            <div class="slider-container">
-                <label for="speedSlider" class="neon-text">播放速度</label>
-                <input type="range" id="speedSlider" min="1" max="100" value="50">
-                <span id="speedValue" class="neon-text">50 帧/秒</span>
-            </div>
-            <button id="playPauseBtn">播放</button>
-            <button id="resetBtn">重置</button>
+    <div id="videoContainer" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background-color: black;">
+        <video id="introVideo" style="width: 100%; height: 100%; object-fit: cover;" preload="auto" playsinline autoplay>
+            <source src="https://img.wjwj.top/2025/01/15/ddeda3bdff5c89e18842ef7c84850f5b.mp4" type="video/mp4">
+        </video>
+        <div id="loadingText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px;">加载中...</div>
+        <button id="playButton"> </button>
+    </div>
+    <div class="modal">
+        <div class="modal-content">
+            <div id="header" class="header">今日打卡内容</div>
+            <div class="body-line-top-unshown"></div>
+            <div class="body-line-top"></div>
+            <div class="date-display" id="dateDisplay"></div>
+            <div class="body-line-bottom"></div>
+            <div class="body-line-bottom-unshown"></div>
+            <button class="copy-button" id="copyButton">
+                <div class="circle-container">
+                    <div class="inner-circle"></div>
+                </div>
+                <span>复制</span>
+            </button>
         </div>
-        <div id="imageContainer"></div>
     </div>
 
     <script>
-        const imageUpload = document.getElementById('imageUpload');
-        const speedTypeRadios = document.getElementsByName('speedType');
-        const speedSlider = document.getElementById('speedSlider');
-        const speedValue = document.getElementById('speedValue');
-        const imageContainer = document.getElementById('imageContainer');
-        const playPauseBtn = document.getElementById('playPauseBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const controls = document.getElementById('controls');
-
-        let images = [];
-        let currentIndex = 0;
-        let intervalId = null;
-        let isPlaying = false;
-        let controlsTimeout;
-
-        imageUpload.addEventListener('change', handleImageUpload);
-        speedTypeRadios.forEach(radio => radio.addEventListener('change', updateSpeedType));
-        speedSlider.addEventListener('input', updateSpeedValue);
-        playPauseBtn.addEventListener('click', togglePlayPause);
-        resetBtn.addEventListener('click', resetPlayer);
-
-        async function handleImageUpload(e) {
-            const files = Array.from(e.target.files);
-            images = [];
-            for (const file of files) {
-                const image = await createImageBitmap(file);
-                images.push(image);
-            }
-            resetPlayer();
+        function convertToLetters(str) {
+            return str.split('').map(char => String.fromCharCode(65 + parseInt(char))).join('');
         }
 
-        function updateSpeedType() {
-            const speedType = document.querySelector('input[name="speedType"]:checked').value;
-            if (speedType === 'fps') {
-                speedSlider.min = 1;
-                speedSlider.max = 100;
-                speedSlider.value = 50; 
-            } else if (speedType === 'seconds') {
-                speedSlider.min = 1;
-                speedSlider.max = 60;
-                speedSlider.value = 5;
-            } else { // minutes
-                speedSlider.min = 1;
-                speedSlider.max = 10;
-                speedSlider.value = 1;
-            }
-            updateSpeedValue();
+        function scrambleText(text, seed) {
+            const scramblePatterns = [
+                (t) => t.split('').reverse().join(''),
+                (t) => t.split('').sort().join(''),
+                (t) => t.split('').sort().reverse().join(''),
+                (t) => t.split('').map(c => String.fromCharCode((c.charCodeAt(0) - 65 + 13) % 26 + 65)).join(''),
+                (t) => t.split('').map((c, i) => i % 2 === 0 ? c : String.fromCharCode((c.charCodeAt(0) - 65 + 13) % 26 + 65)).join(''),
+                (t) => t.split('').map(c => String.fromCharCode(c.charCodeAt(0) + 1)).join(''),
+                (t) => t.split('').map(c => String.fromCharCode(c.charCodeAt(0) - 1)).join(''),
+                (t) => t.split('').map((c, i) => i % 3 === 0 ? c : String.fromCharCode((c.charCodeAt(0) - 65 + 7) % 26 + 65)).join(''),
+                (t) => t.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
+                (t) => t.split('').map(c => c === 'A' ? 'Z' : (c === 'Z' ? 'A' : c)).join(''),
+                (t) => t.split('').filter((_, i) => i % 2 === 0).join(''),
+                (t) => t.split('').filter((_, i) => i % 2 !== 0).join(''),
+                (t) => t.split('').map(c => c.charCodeAt(0) % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
+                (t) => t.split('').map(c => String.fromCharCode((c.charCodeAt(0) - 65 + 5) % 26 + 65)).join(''),
+                (t) => t.split('').map((c, i) => i % 4 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 3) % 26 + 65) : c).join(''),
+                (t) => t.split('').map((c, i) => i % 3 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 11) % 26 + 65) : c).join(''),
+                (t) => t.split('').map((c, i) => i % 5 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 17) % 26 + 65) : c).join(''),
+                (t) => t.split('').reverse().map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
+                (t) => t.split('').map((c, i) => String.fromCharCode((c.charCodeAt(0) - 65 + i) % 26 + 65)).join(''),
+                (t) => t.split('').map((c, i) => String.fromCharCode((c.charCodeAt(0) - 65 - i + 26) % 26 + 65)).join(''),
+                (t) => t.split('').map(c => String.fromCharCode((c.charCodeAt(0) - 65 + 1) % 26 + 65)).join(''),
+                (t) => t.split('').map(c => String.fromCharCode((c.charCodeAt(0) - 65 + 25) % 26 + 65)).join(''),
+                (t) => t.split('').map((c, i) => i % 3 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 19) % 26 + 65) : c).join(''),
+                (t) => t.split('').map((c, i) => i % 4 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 23) % 26 + 65) : c).join(''),
+                (t) => t.split('').map(c => c === 'A' ? 'Z' : (c === 'Z' ? 'Y' : (c === 'Y' ? 'A' : c))).join(''),
+                (t) => t.split('').map((c, i) => i % 2 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 7) % 26 + 65) : c).join(''),
+                (t) => t.split('').map((c, i) => i % 2 !== 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 13) % 26 + 65) : c).join(''),
+                (t) => t.split('').map((c, i) => i % 3 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 5) % 26 + 65) : (i % 3 === 1 ? String.fromCharCode((c.charCodeAt(0) - 65 + 11) % 26 + 65) : c)).join(''),
+                (t) => t.split('').map((c, i) => i % 4 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 17) % 26 + 65) : (i % 4 === 1 ? String.fromCharCode((c.charCodeAt(0) - 65 + 23) % 26 + 65) : c)).join(''),
+                (t) => t.split('').reverse().map((c, i) => i % 3 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 9) % 26 + 65) : c).join(''),
+                (t) => t.split('').map((c, i) => String.fromCharCode((c.charCodeAt(0) - 65 + (i * 3) % 26) % 26 + 65)).join('')
+            ];
+
+            const dayOfMonth = seed % 31;
+            return scramblePatterns[dayOfMonth](text);
         }
 
-        function updateSpeedValue() {
-            targetValue = parseFloat(speedSlider.value);
-            if (!animationFrame) {
-                startValue = currentValue = parseFloat(speedSlider.value);
-                animationFrame = requestAnimationFrame(updateSlider);
-            }
+        function updateDateDisplay() {
+            const date = new Date();
+            const year = date.getFullYear().toString();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const day = date.getDate().toString().padStart(2, '0');
+
+            const convertedDate = convertToLetters(year + month + day);
+            const dateString = convertedDate + 'HDYHJDK';
+
+            const scrambledText = scrambleText(dateString, date.getDate());
+
+            document.getElementById('dateDisplay').textContent = scrambledText;
+            return scrambledText;
         }
 
-        function updateSpeedValueDisplay(value) {
-            const speedType = document.querySelector('input[name="speedType"]:checked').value;
-            const roundedValue = Math.round(value);
-            if (speedType === 'fps') {
-                speedValue.textContent = `${roundedValue} 帧/秒`;
-            } else if (speedType === 'seconds') {
-                speedValue.textContent = `${roundedValue} 秒/张`;
-            } else {
-                speedValue.textContent = `${roundedValue} 分/张`;
-            }
-            
-            if (isPlaying) {
-                clearInterval(intervalId);
-                startPlayer();
-            }
-        }
+        const dateString = updateDateDisplay();
 
-        function smoothSliderMovement() {
-            let isDragging = false;
-            let animationFrame;
-            let startValue, currentValue, targetValue;
+        document.getElementById('copyButton').addEventListener('click', function() {
+            navigator.clipboard.writeText(dateString).then(() => {
+                this.querySelector('span').textContent = '已复制';
+                setTimeout(() => {
+                    this.querySelector('span').textContent = '复制';
+                }, 3000);
+            });
+        });
 
-            speedSlider.addEventListener('mousedown', startDragging);
-            speedSlider.addEventListener('touchstart', startDragging);
-            document.addEventListener('mouseup', stopDragging);
-            document.addEventListener('touchend', stopDragging);
-            speedSlider.addEventListener('input', updateTarget);
+        document.addEventListener('DOMContentLoaded', function() {
+            const video = document.getElementById('introVideo');
+            const videoContainer = document.getElementById('videoContainer');
+            const modalContent = document.querySelector('.modal-content');
+            const loadingText = document.getElementById('loadingText');
+            const playButton = document.getElementById('playButton');
 
-            function startDragging() {
-                isDragging = true;
-                startValue = parseFloat(speedSlider.value);
-                currentValue = startValue;
-                cancelAnimationFrame(animationFrame);
-                animationFrame = requestAnimationFrame(updateSlider);
+            function log(message) {
+                console.log(`[${new Date().toISOString()}] ${message}`);
             }
 
-            function stopDragging() {
-                isDragging = false;
+            function showPlayButton() {
+                playButton.style.display = 'block';
+                loadingText.style.display = 'none';
             }
 
-            function updateTarget() {
-                targetValue = parseFloat(speedSlider.value);
-                if (!isDragging) {
-                    startValue = currentValue;
+            function hidePlayButton() {
+                playButton.style.display = 'none';
+            }
+
+            function playVideo() {
+                log('Attempting to play video');
+                hidePlayButton();
+                video.play().then(() => {
+                    log('Video started playing successfully');
+                }).catch(error => {
+                    log(`Error playing video: ${error}`);
+                    showPlayButton();
+                });
+            }
+
+            function showMainContent() {
+                log('Showing main content');
+                videoContainer.style.transition = 'opacity 1s ease-out';
+                videoContainer.style.opacity = '0';
+                modalContent.style.transition = 'opacity 1s ease-in';
+                modalContent.style.opacity = '1';
+                setTimeout(() => {
+                    videoContainer.style.display = 'none';
+                }, 1000);
+            }
+
+            video.addEventListener('loadedmetadata', () => {
+                log('Video metadata loaded');
+            });
+
+            video.addEventListener('canplay', () => {
+                log('Video can play');
+                loadingText.style.display = 'none';
+                playVideo();
+            });
+
+            video.addEventListener('playing', () => {
+                log('Video is playing');
+                hidePlayButton();
+            });
+
+            video.addEventListener('ended', () => {
+                log('Video ended');
+                showMainContent();
+            });
+
+            playButton.addEventListener('click', playVideo);
+
+            // Attempt to play the video immediately
+            playVideo();
+
+            // Fallback in case video doesn't play
+            setTimeout(() => {
+                if (video.paused) {
+                    log('Video did not start playing after 5 seconds. Showing play button.');
+                    showPlayButton();
                 }
-            }
+            }, 5000);
 
-            function updateSlider() {
-                if (!isDragging && Math.abs(currentValue - targetValue) < 0.1) {
-                    currentValue = targetValue;
-                    updateSpeedValueDisplay(currentValue);
-                    return;
-                }
-
-                currentValue += (targetValue - currentValue) * 0.2;
-                speedSlider.value = currentValue;
-                updateSpeedValueDisplay(currentValue);
-                animationFrame = requestAnimationFrame(updateSlider);
-            }
-        }
-
-        function togglePlayPause() {
-            if (isPlaying) {
-                pausePlayer();
-            } else {
-                startPlayer();
-            }
-        }
-
-        function startPlayer() {
-            if (images.length === 0) return;
-            pausePlayer();
-            isPlaying = true;
-            playPauseBtn.textContent = '暂停';
-            imageUpload.classList.add('hidden'); // 隐藏上传区域
-            const speedType = document.querySelector('input[name="speedType"]:checked').value;
-            let interval;
-            if (speedType === 'fps') {
-                interval = 1000 / speedSlider.value;
-            } else if (speedType === 'seconds') {
-                interval = speedSlider.value * 1000;
-            } else {
-                interval = speedSlider.value * 60 * 1000;
-            }
-            intervalId = setInterval(showNextImage, interval);
-            setTimeout(hideControls, 3000);
-        }
-
-        function pausePlayer() {
-            clearInterval(intervalId);
-            isPlaying = false;
-            playPauseBtn.textContent = '播放';
-            imageUpload.classList.remove('hidden'); // 显示上传区域
-            showControls();
-        }
-
-        function resetPlayer() {
-            pausePlayer();
-            currentIndex = 0;
-            showCurrentImage();
-        }
-
-        function showNextImage() {
-            if (images.length === 0) return;
-            currentIndex = (currentIndex + 1) % images.length;
-            if (currentIndex === 0) {
-                // 移除一轮播放完成后显示控制区的行为
-                const speedType = document.querySelector('input[name="speedType"]:checked').value;
-                const interval = speedType === 'fps' ? 1000 / speedSlider.value : speedSlider.value * 1000;
-                clearInterval(intervalId);
-                intervalId = setInterval(showNextImage, interval);
-            }
-            showCurrentImage();
-        }
-
-        function showCurrentImage() {
-            if (images.length === 0) {
-                imageContainer.innerHTML = '<p class="neon-text">未上传图片</p>';
-                return;
-            }
-            const canvas = document.createElement('canvas');
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            const ctx = canvas.getContext('2d');
-            
-            // 设置白色背景
-            ctx.fillStyle = '#fff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            const img = images[currentIndex];
-            const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
-            const x = (canvas.width / 2) - (img.width / 2) * scale;
-            const y = (canvas.height / 2) - (img.height / 2) * scale;
-            
-            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-            
-            imageContainer.innerHTML = '';
-            imageContainer.appendChild(canvas);
-        }
-
-        function hideControls() {
-            controls.classList.add('hidden');
-        }
-
-        function showControls() {
-            controls.classList.remove('hidden');
-        }
-
-        document.addEventListener('mousemove', () => {
-            showControls();
-            clearTimeout(controlsTimeout);
-            if (isPlaying) {
-                controlsTimeout = setTimeout(hideControls, 3000);
-            }
+            // Initially hide the modal content
+            modalContent.style.opacity = '0';
         });
-
-        window.addEventListener('resize', () => {
-            showCurrentImage();
-        });
-
-        // 禁用右键菜单
-        document.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-            return false;
-        });
-
-        smoothSliderMovement();
-        updateSpeedType();
     </script>
 </body>
 </html>
