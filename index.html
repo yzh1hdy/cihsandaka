@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>慈善打卡_中间页</title>
+    <title>���ƴ�_�м�ҳ</title>
     <style>
-        /* 禁用选择 */
+        /* ����ѡ�� */
         * {
             user-select: none;
             -webkit-user-select: none;
@@ -11,7 +11,7 @@
             -ms-user-select: none;
         }
 
-        /* 自定义弹窗样式 */
+        /* �Զ��嵯����ʽ */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -24,10 +24,10 @@
             backdrop-filter: blur(3px);
             opacity: 0;
             transition: opacity 0.2s ease;
-            pointer-events: none; /* 禁用遮罩层点击 */
+            pointer-events: none; /* �������ֲ��� */
         }
 
-        /* 条纹背景 */
+        /* ���Ʊ��� */
         .modal-overlay::before {
             content: '';
             position: absolute;
@@ -61,7 +61,7 @@
         .modal-content {
             position: absolute;
             left: 50%;
-            top: 53%; /* 向下偏移 */
+            top: 53%; /* ����ƫ�� */
             transform: translate(-50%, -50%);
             opacity: 0;
             width: 100%;
@@ -75,14 +75,14 @@
             align-items: center;
             justify-content: center;
             min-height: 200px;
-            pointer-events: none; /* 禁用内容区域点击 */
+            pointer-events: none; /* �������������� */
         }
 
         .modal-title {
             color: #ffffff;
             font-size: clamp(16px, 2vw, 18px);
             text-align: center;
-            font-weight: 1700; /* 加粗 */
+            font-weight: 1700; /* �Ӵ� */
             margin: 0 auto;
             padding: 0 20px;
             max-width: 1600px;
@@ -93,7 +93,7 @@
             display: flex;
             justify-content: center;
             margin-top: 30px;
-            pointer-events: auto; /* 恢复按钮区域点击 */
+            pointer-events: auto; /* �ָ���ť������ */
         }
 
         .modal-button {
@@ -111,14 +111,14 @@
             display: flex;
             align-items: center;
             width: 150px;
-            pointer-events: auto; /* 确保按钮可点击 */
+            pointer-events: auto; /* ȷ����ť�ɵ�� */
         }
 
         .modal-button img {
             width: 20px;
             height: 20px;
             object-fit: contain;
-            margin-left: 6px; /* 减小左边距 */
+            margin-left: 6px; /* ��С��߾� */
             margin-right: 1px;
         }
 
@@ -127,7 +127,7 @@
             text-align: center;
             padding-right: 15px;
             white-space: nowrap;
-            font-weight: 1700; /* 加粗 */
+            font-weight: 1700; /* �Ӵ� */
         }
 
         .modal-button:hover {
@@ -169,8 +169,8 @@
             margin: 20px;
         }
 
-        /* 修改横屏处理样式 */
-        @media (max-aspect-ratio: 1/1.2) { /* 当宽高比小于1:1.2时触发 */
+        /* �޸ĺ���������ʽ */
+        @media (max-aspect-ratio: 1/1.2) { /* �����߱�С��1:1.2ʱ���� */
             body {
                 transform: rotate(90deg);
                 transform-origin: left top;
@@ -200,69 +200,69 @@
     </style>
 </head>
 <body>
-    <h2>yzhhdy_慈善打卡_中间页</h2>
-    <!-- 添加弹窗HTML -->
+    <h2>yzhhdy_���ƴ�_�м�ҳ</h2>
+    <!-- ���ӵ���HTML -->
     <div class="modal-overlay" id="themeModal">
         <div class="modal-line"></div>
         <div class="modal-content">
-            <div class="modal-title">服务器现在在飞机上，2025/1/25 0:00-12:00 期间停服维护，暂时关闭打卡服务，请耐心等待。</div>
+            <div class="modal-title">�����������ڷɻ��ϣ�2025/1/25 0:00-12:00 �ڼ�ͣ��ά������ʱ�رմ򿨷��������ĵȴ���</div>
             <div class="modal-buttons">
                 <button class="modal-button confirm" id="confirmThemeChange">
-                    <img src="确认.png" alt="确认">
-                    <span>确认</span>
+                    <img src="https://img.wjwj.top/2025/01/24/cd95be126d56be12b4adb93e41db545e.png" alt="ȷ��">
+                    <span>ȷ��</span>
                 </button>
             </div>
         </div>
     </div>
 
     <script>
-        // 禁用右键菜单
+        // �����Ҽ��˵�
         document.addEventListener('contextmenu', e => e.preventDefault());
         
-        // 禁用键盘快捷键
+        // ���ü��̿�ݼ�
         document.addEventListener('keydown', e => {
             if (e.ctrlKey || e.altKey || e.shiftKey) {
                 e.preventDefault();
             }
         });
 
-        // 检查时间并控制弹窗显示
+        // ���ʱ�䲢���Ƶ�����ʾ
         function checkTimeAndShowModal() {
             const now = new Date();
-            const targetDate = new Date('2025-01-24');
+            const targetDate = new Date('2025-01-25');
             
-            // 如果是2025年1月25日
+            // �����2025��1��25��
             if (now.getFullYear() === targetDate.getFullYear() && 
                 now.getMonth() === targetDate.getMonth() && 
                 now.getDate() === targetDate.getDate()) {
                 
-                // 如果时间在0:00到12:00之间
+                // ���ʱ����0:00��12:00֮��
                 if (now.getHours() >= 0 && now.getHours() < 12) {
                     showModal();
                 } else {
-                    window.location.href = '慈善打卡.html';
+                    window.location.href = '慈善打卡1.html';
                 }
             } else {
-                window.location.href = '慈善打卡.html';
+                window.location.href = '慈善打卡1.html';
             }
         }
 
-        // 显示弹窗的函数
+        // ��ʾ�����ĺ���
         function showModal() {
             themeModal.style.display = 'block';
-            // 强制重排，确保动画生效
+            // ǿ�����ţ�ȷ��������Ч
             themeModal.offsetHeight;
             requestAnimationFrame(() => {
                 themeModal.classList.add('show');
             });
         }
 
-        // 关闭弹窗的函数
+        // �رյ����ĺ���
         function closeModal(callback) {
             themeModal.classList.remove('show');
             setTimeout(() => {
                 themeModal.style.display = 'none';
-                // 确保状态完全重置
+                // ȷ��״̬��ȫ����
                 themeModal.classList.remove('show');
                 if (typeof callback === 'function') {
                     callback();
@@ -270,35 +270,35 @@
             }, 200);
         }
 
-        // 绑定事件处理程序
+        // ���¼���������
         document.getElementById('confirmThemeChange').addEventListener('click', () => {
             closeModal(() => {
                 setTimeout(() => {
-                    // 重新检查时间后显示弹窗
+                    // ���¼��ʱ�����ʾ����
                     checkTimeAndShowModal();
                 }, 1000);
             });
         });
 
-        // 移除遮罩层点击事件监听器
+        // �Ƴ����ֲ����¼�������
         // themeModal.addEventListener('click', (e) => {
         //     if(e.target === themeModal) {
         //         closeModal();
         //     }
         // });
 
-        // 页面加载时立即检查
+        // ҳ�����ʱ�������
         document.addEventListener('DOMContentLoaded', checkTimeAndShowModal);
 
-        // 移除原有的orientationchange和load事件监听器
-        // 添加新的尺寸变化检测
+        // �Ƴ�ԭ�е�orientationchange��load�¼�������
+        // �����µĳߴ�仯���
         window.addEventListener('resize', function() {
             document.body.style.transition = 'transform 0.3s ease';
-            // 强制重排以确保旋转效果平滑
+            // ǿ��������ȷ����תЧ��ƽ��
             document.body.offsetHeight;
         });
 
-        // 页面加载完成后移除过渡效果，避免初始加载时的动画
+        // ҳ�������ɺ��Ƴ�����Ч���������ʼ����ʱ�Ķ���
         window.addEventListener('load', function() {
             setTimeout(() => {
                 document.body.style.transition = 'none';
