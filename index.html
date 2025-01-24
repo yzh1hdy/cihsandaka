@@ -1,308 +1,309 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>每日打卡内容</title>
+    <title>慈善打卡_中间页</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@500&display=swap');
+        /* 禁用选择 */
+        * {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
 
-        .header {
-            color: #D3BF91;
-            font-size: 1.2rem;
-            margin-top: -1rem;
-            text-align: center;
-        }
-        .body-line-top {
-            border-top: 2px solid #676E7B;
-            width: 110%;
-            margin-bottom: 1.5rem;
-        }
-        .body-line-top-unshown {
-            border-top: 2px solid #3D4454;
-            width: 110%;
-            margin-bottom: 0.55rem;
-        }
-        .body-line-bottom {
-            border-bottom: 2px solid #676E7B;
-            width: 110%;
-            margin-top: 1.5rem;
-        }
-        .body-line-bottom-unshown {
-            border-bottom: 2px solid #3D4454;
-            width: 110%;
-            margin-top: 0.55rem;
-        }
-        body {
-            background-image: url('https://img.wjwj.top/2025/01/09/efafe422cfcb2707807e44ebc6390bd7.jpeg');
-            background-size: cover;
-            background-position: center;
-            font-family: 'Noto Sans SC', sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #ffffff;
-        }
-        .modal {
+        /* 自定义弹窗样式 */
+        .modal-overlay {
+            display: none;
             position: fixed;
-            inset: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            backdrop-filter: blur(3px);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none; /* 禁用遮罩层点击 */
         }
+
+        /* 条纹背景 */
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 5px,
+                rgba(0, 0, 0, 0.2) 5px,
+                rgba(0, 0, 0, 0.2) 10px
+            );
+            background-size: 14px 14px;
+            z-index: -1;
+        }
+
+        .modal-line {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 1px;
+            background: #666;
+            transition: all 0.15s ease;
+        }
+
         .modal-content {
-            background-color: #3D4454;
-            padding: 2rem;
-            border-radius: 0.6rem;
-            box-shadow: 0 20px 55px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            width: 480px;
-            height: 300px;
+            position: absolute;
+            left: 50%;
+            top: 53%; /* 向下偏移 */
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            width: 100%;
+            max-width: 1800px;
+            z-index: 1;
+            transition: opacity 0.15s ease;
+            text-align: center;
+            padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
-            opacity: 0;
-        }
-        button {
-            margin-top: auto;
-            margin-bottom: 2rem;
-        }
-        .date-display {
-            color: white;
-            font-size: 1.5rem;
-            font-weight: bold;
-            flex-grow: 1;
-            display: flex;
-            align-items: center;
             justify-content: center;
+            min-height: 200px;
+            pointer-events: none; /* 禁用内容区域点击 */
         }
-        .copy-button {
-            width: calc(115% - 2rem);
-            background-color: #EBE5D7;
-            color: #3D4454;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
+
+        .modal-title {
+            color: #ffffff;
+            font-size: clamp(16px, 2vw, 18px);
+            text-align: center;
+            font-weight: 1700; /* 加粗 */
+            margin: 0 auto;
+            padding: 0 20px;
+            max-width: 1600px;
+            line-height: 1.5;
+        }
+
+        .modal-buttons {
             display: flex;
-            align-items: center;
             justify-content: center;
-            margin-bottom: -1.2rem;
-            margin-top: auto;
+            margin-top: 30px;
+            pointer-events: auto; /* 恢复按钮区域点击 */
+        }
+
+        .modal-button {
+            min-width: 120px;
+            height: 36px;
+            padding: 0;
+            font-size: clamp(14px, 1.5vw, 16px);
+            border: 2px solid #424242 !important;
+            cursor: pointer;
+            background: #000 !important;
             position: relative;
-            border: none;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        .circle-container {
-            position: absolute;
-            left: 0.35rem;
-            width: 1.75rem;
-            height: 1.75rem;
-            background-color: #313032;
-            border-radius: 50%;
+            overflow: hidden;
+            color: #fff;
+            border-radius: 25px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            width: 150px;
+            pointer-events: auto; /* 确保按钮可点击 */
         }
-        .inner-circle {
-            width: 0.75rem;
-            height: 0.75rem;
-            border: 0.15rem solid #EACA40;
-            border-radius: 50%;
+
+        .modal-button img {
+            width: 20px;
+            height: 20px;
+            object-fit: contain;
+            margin-left: 6px; /* 减小左边距 */
+            margin-right: 1px;
         }
-        #playButton {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1001;
-            padding: 9000px 9000px;
-            font-size: 18px;
-            background-color: rgba(255, 255, 255, 0);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            display: none;
+
+        .modal-button span {
+            flex: 1;
+            text-align: center;
+            padding-right: 15px;
+            white-space: nowrap;
+            font-weight: 1700; /* 加粗 */
+        }
+
+        .modal-button:hover {
+            background: #000 !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .modal-button:active {
+            background: #000 !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+        }
+
+        .modal-overlay.show .modal-line {
+            height: clamp(100px, 15vh, 120px);
+            background: rgba(20, 20, 20, 0.95);
+        }
+
+        .modal-overlay.show .modal-content {
+            opacity: 1;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: url('https://img.wjwj.top/2025/01/24/ae616e22e8cbf603a426397d3e8d4261.jpeg') center/cover no-repeat fixed;
+        }
+
+        h2 {
+            color: #EBF3EE;
+            font-weight: 900;
+            font-size: 24px;
+            margin: 20px;
+        }
+
+        /* 修改横屏处理样式 */
+        @media (max-aspect-ratio: 1/1.2) { /* 当宽高比小于1:1.2时触发 */
+            body {
+                transform: rotate(90deg);
+                transform-origin: left top;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100vh;
+                height: 100vw;
+                overflow-x: hidden;
+                background-attachment: fixed;
+            }
+
+            .modal-overlay {
+                position: fixed;
+                width: 100vh;
+                height: 100vw;
+                transform-origin: left top;
+                transform: rotate(-90deg);
+                top: 100%;
+                left: 0;
+            }
+
+            .modal-content {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
         }
     </style>
 </head>
 <body>
-    <div id="videoContainer" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000; background-color: black;">
-        <video id="introVideo" style="width: 100%; height: 100%; object-fit: cover;" preload="auto" playsinline autoplay>
-            <source src="https://img.wjwj.top/2025/01/15/ddeda3bdff5c89e18842ef7c84850f5b.mp4" type="video/mp4">
-        </video>
-        <div id="loadingText" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 24px;">加载中...</div>
-        <button id="playButton"> </button>
-    </div>
-    <div class="modal">
+    <h2>yzhhdy_慈善打卡_中间页</h2>
+    <!-- 添加弹窗HTML -->
+    <div class="modal-overlay" id="themeModal">
+        <div class="modal-line"></div>
         <div class="modal-content">
-            <div id="header" class="header">今日打卡内容</div>
-            <div class="body-line-top-unshown"></div>
-            <div class="body-line-top"></div>
-            <div class="date-display" id="dateDisplay"></div>
-            <div class="body-line-bottom"></div>
-            <div class="body-line-bottom-unshown"></div>
-            <button class="copy-button" id="copyButton">
-                <div class="circle-container">
-                    <div class="inner-circle"></div>
-                </div>
-                <span>复制</span>
-            </button>
+            <div class="modal-title">服务器现在在飞机上，2025/1/25 0:00-12:00 期间停服维护，暂时关闭打卡服务，请耐心等待。</div>
+            <div class="modal-buttons">
+                <button class="modal-button confirm" id="confirmThemeChange">
+                    <img src="确认.png" alt="确认">
+                    <span>确认</span>
+                </button>
+            </div>
         </div>
     </div>
 
     <script>
-        function convertToLetters(str) {
-            return str.split('').map(char => String.fromCharCode(65 + parseInt(char))).join('');
+        // 禁用右键菜单
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        
+        // 禁用键盘快捷键
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey || e.altKey || e.shiftKey) {
+                e.preventDefault();
+            }
+        });
+
+        // 检查时间并控制弹窗显示
+        function checkTimeAndShowModal() {
+            const now = new Date();
+            const targetDate = new Date('2025-01-24');
+            
+            // 如果是2025年1月25日
+            if (now.getFullYear() === targetDate.getFullYear() && 
+                now.getMonth() === targetDate.getMonth() && 
+                now.getDate() === targetDate.getDate()) {
+                
+                // 如果时间在0:00到12:00之间
+                if (now.getHours() >= 0 && now.getHours() < 12) {
+                    showModal();
+                } else {
+                    window.location.href = '慈善打卡.html';
+                }
+            } else {
+                window.location.href = '慈善打卡.html';
+            }
         }
 
-        function scrambleText(text, seed) {
-            const scramblePatterns = [
-                (t) => t.split('').reverse().join(''),
-                (t) => t.split('').sort().join(''),
-                (t) => t.split('').sort().reverse().join(''),
-                (t) => t.split('').map(c => String.fromCharCode((c.charCodeAt(0) - 65 + 13) % 26 + 65)).join(''),
-                (t) => t.split('').map((c, i) => i % 2 === 0 ? c : String.fromCharCode((c.charCodeAt(0) - 65 + 13) % 26 + 65)).join(''),
-                (t) => t.split('').map(c => String.fromCharCode(c.charCodeAt(0) + 1)).join(''),
-                (t) => t.split('').map(c => String.fromCharCode(c.charCodeAt(0) - 1)).join(''),
-                (t) => t.split('').map((c, i) => i % 3 === 0 ? c : String.fromCharCode((c.charCodeAt(0) - 65 + 7) % 26 + 65)).join(''),
-                (t) => t.split('').map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
-                (t) => t.split('').map(c => c === 'A' ? 'Z' : (c === 'Z' ? 'A' : c)).join(''),
-                (t) => t.split('').filter((_, i) => i % 2 === 0).join(''),
-                (t) => t.split('').filter((_, i) => i % 2 !== 0).join(''),
-                (t) => t.split('').map(c => c.charCodeAt(0) % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
-                (t) => t.split('').map(c => String.fromCharCode((c.charCodeAt(0) - 65 + 5) % 26 + 65)).join(''),
-                (t) => t.split('').map((c, i) => i % 4 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 3) % 26 + 65) : c).join(''),
-                (t) => t.split('').map((c, i) => i % 3 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 11) % 26 + 65) : c).join(''),
-                (t) => t.split('').map((c, i) => i % 5 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 17) % 26 + 65) : c).join(''),
-                (t) => t.split('').reverse().map((c, i) => i % 2 === 0 ? c.toLowerCase() : c.toUpperCase()).join(''),
-                (t) => t.split('').map((c, i) => String.fromCharCode((c.charCodeAt(0) - 65 + i) % 26 + 65)).join(''),
-                (t) => t.split('').map((c, i) => String.fromCharCode((c.charCodeAt(0) - 65 - i + 26) % 26 + 65)).join(''),
-                (t) => t.split('').map(c => String.fromCharCode((c.charCodeAt(0) - 65 + 1) % 26 + 65)).join(''),
-                (t) => t.split('').map(c => String.fromCharCode((c.charCodeAt(0) - 65 + 25) % 26 + 65)).join(''),
-                (t) => t.split('').map((c, i) => i % 3 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 19) % 26 + 65) : c).join(''),
-                (t) => t.split('').map((c, i) => i % 4 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 23) % 26 + 65) : c).join(''),
-                (t) => t.split('').map(c => c === 'A' ? 'Z' : (c === 'Z' ? 'Y' : (c === 'Y' ? 'A' : c))).join(''),
-                (t) => t.split('').map((c, i) => i % 2 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 7) % 26 + 65) : c).join(''),
-                (t) => t.split('').map((c, i) => i % 2 !== 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 13) % 26 + 65) : c).join(''),
-                (t) => t.split('').map((c, i) => i % 3 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 5) % 26 + 65) : (i % 3 === 1 ? String.fromCharCode((c.charCodeAt(0) - 65 + 11) % 26 + 65) : c)).join(''),
-                (t) => t.split('').map((c, i) => i % 4 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 17) % 26 + 65) : (i % 4 === 1 ? String.fromCharCode((c.charCodeAt(0) - 65 + 23) % 26 + 65) : c)).join(''),
-                (t) => t.split('').reverse().map((c, i) => i % 3 === 0 ? String.fromCharCode((c.charCodeAt(0) - 65 + 9) % 26 + 65) : c).join(''),
-                (t) => t.split('').map((c, i) => String.fromCharCode((c.charCodeAt(0) - 65 + (i * 3) % 26) % 26 + 65)).join('')
-            ];
-
-            const dayOfMonth = seed % 31;
-            return scramblePatterns[dayOfMonth](text);
+        // 显示弹窗的函数
+        function showModal() {
+            themeModal.style.display = 'block';
+            // 强制重排，确保动画生效
+            themeModal.offsetHeight;
+            requestAnimationFrame(() => {
+                themeModal.classList.add('show');
+            });
         }
 
-        function updateDateDisplay() {
-            const date = new Date();
-            const year = date.getFullYear().toString();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-
-            const convertedDate = convertToLetters(year + month + day);
-            const dateString = convertedDate + 'HDYHJDK';
-
-            const scrambledText = scrambleText(dateString, date.getDate());
-
-            document.getElementById('dateDisplay').textContent = scrambledText;
-            return scrambledText;
+        // 关闭弹窗的函数
+        function closeModal(callback) {
+            themeModal.classList.remove('show');
+            setTimeout(() => {
+                themeModal.style.display = 'none';
+                // 确保状态完全重置
+                themeModal.classList.remove('show');
+                if (typeof callback === 'function') {
+                    callback();
+                }
+            }, 200);
         }
 
-        const dateString = updateDateDisplay();
-
-        document.getElementById('copyButton').addEventListener('click', function() {
-            navigator.clipboard.writeText(dateString).then(() => {
-                this.querySelector('span').textContent = '已复制';
+        // 绑定事件处理程序
+        document.getElementById('confirmThemeChange').addEventListener('click', () => {
+            closeModal(() => {
                 setTimeout(() => {
-                    this.querySelector('span').textContent = '复制';
-                }, 3000);
+                    // 重新检查时间后显示弹窗
+                    checkTimeAndShowModal();
+                }, 1000);
             });
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const video = document.getElementById('introVideo');
-            const videoContainer = document.getElementById('videoContainer');
-            const modalContent = document.querySelector('.modal-content');
-            const loadingText = document.getElementById('loadingText');
-            const playButton = document.getElementById('playButton');
+        // 移除遮罩层点击事件监听器
+        // themeModal.addEventListener('click', (e) => {
+        //     if(e.target === themeModal) {
+        //         closeModal();
+        //     }
+        // });
 
-            function log(message) {
-                console.log(`[${new Date().toISOString()}] ${message}`);
-            }
+        // 页面加载时立即检查
+        document.addEventListener('DOMContentLoaded', checkTimeAndShowModal);
 
-            function showPlayButton() {
-                playButton.style.display = 'block';
-                loadingText.style.display = 'none';
-            }
+        // 移除原有的orientationchange和load事件监听器
+        // 添加新的尺寸变化检测
+        window.addEventListener('resize', function() {
+            document.body.style.transition = 'transform 0.3s ease';
+            // 强制重排以确保旋转效果平滑
+            document.body.offsetHeight;
+        });
 
-            function hidePlayButton() {
-                playButton.style.display = 'none';
-            }
-
-            function playVideo() {
-                log('Attempting to play video');
-                hidePlayButton();
-                video.play().then(() => {
-                    log('Video started playing successfully');
-                }).catch(error => {
-                    log(`Error playing video: ${error}`);
-                    showPlayButton();
-                });
-            }
-
-            function showMainContent() {
-                log('Showing main content');
-                videoContainer.style.transition = 'opacity 1s ease-out';
-                videoContainer.style.opacity = '0';
-                modalContent.style.transition = 'opacity 1s ease-in';
-                modalContent.style.opacity = '1';
-                setTimeout(() => {
-                    videoContainer.style.display = 'none';
-                }, 1000);
-            }
-
-            video.addEventListener('loadedmetadata', () => {
-                log('Video metadata loaded');
-            });
-
-            video.addEventListener('canplay', () => {
-                log('Video can play');
-                loadingText.style.display = 'none';
-                playVideo();
-            });
-
-            video.addEventListener('playing', () => {
-                log('Video is playing');
-                hidePlayButton();
-            });
-
-            video.addEventListener('ended', () => {
-                log('Video ended');
-                showMainContent();
-            });
-
-            playButton.addEventListener('click', playVideo);
-
-            // Attempt to play the video immediately
-            playVideo();
-
-            // Fallback in case video doesn't play
+        // 页面加载完成后移除过渡效果，避免初始加载时的动画
+        window.addEventListener('load', function() {
             setTimeout(() => {
-                if (video.paused) {
-                    log('Video did not start playing after 5 seconds. Showing play button.');
-                    showPlayButton();
-                }
-            }, 5000);
-
-            // Initially hide the modal content
-            modalContent.style.opacity = '0';
+                document.body.style.transition = 'none';
+            }, 300);
         });
     </script>
 </body>
 </html>
-
