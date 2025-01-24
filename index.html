@@ -1,309 +1,569 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-CN">
 <head>
-    <title>慈善打卡-中间页</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全屏图片播放器</title>
     <style>
-        /*     ?   */
-        * {
-            user-select: none;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
+        @font-face {
+            font-family: 'HarmonyOS Sans SC Black';
+            src: url('HarmonyOS_Sans_SC_Black.ttf') format('truetype');
+            font-weight: 900;
+            font-style: normal;
         }
 
-        /*  ?  嵯    ? */
-        .modal-overlay {
-            display: none;
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'HarmonyOS Sans SC Black', sans-serif;
+            background-color: #0a0a0f;
+            color: #e0e0ff;
+        }
+
+        #app {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #controls {
             position: fixed;
-            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            backdrop-filter: blur(3px);
-            opacity: 0;
-            transition: opacity 0.2s ease;
-            pointer-events: none; /*        ?    */
+            background: linear-gradient(0deg, rgba(16, 20, 35, 0.95) 0%, rgba(16, 20, 35, 0.85) 100%);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 195, 255, 0.3);
+            color: #e0e0ff;
+            padding: 20px;
+            z-index: 1000;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
-        /*    ?    */
-        .modal-overlay::before {
+        #controls.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+        }
+
+        #controls::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background-image: repeating-linear-gradient(
-                45deg,
-                transparent,
-                transparent 5px,
-                rgba(0, 0, 0, 0.2) 5px,
-                rgba(0, 0, 0, 0.2) 10px
-            );
-            background-size: 14px 14px;
-            z-index: -1;
-        }
-
-        .modal-line {
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            transform: translateY(-50%);
-            width: 100%;
             height: 1px;
-            background: #666;
-            transition: all 0.15s ease;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(0, 195, 255, 0.5) 20%, 
+                rgba(0, 195, 255, 0.8) 50%,
+                rgba(0, 195, 255, 0.5) 80%, 
+                transparent 100%);
         }
 
-        .modal-content {
-            position: absolute;
-            left: 50%;
-            top: 53%; /*     ?   */
-            transform: translate(-50%, -50%);
-            opacity: 0;
-            width: 100%;
-            max-width: 1800px;
-            z-index: 1;
-            transition: opacity 0.15s ease;
-            text-align: center;
-            padding: 40px 20px;
+        #imageContainer {
+            flex-grow: 1;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
-            justify-content: center;
-            min-height: 200px;
-            pointer-events: none; /*                */
+            background-color: #fff;  /* 改为白色背景 */
         }
 
-        .modal-title {
-            color: #ffffff;
-            font-size: clamp(16px, 2vw, 18px);
-            text-align: center;
-            font-weight: 1700; /*  ?  */
-            margin: 0 auto;
-            padding: 0 20px;
-            max-width: 1600px;
-            line-height: 1.5;
+        #imageContainer canvas {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
         }
 
-        .modal-buttons {
+        .slider-container {
             display: flex;
-            justify-content: center;
-            margin-top: 30px;
-            pointer-events: auto; /*  ?   ?       */
+            align-items: center;
+            margin-bottom: 20px;
         }
 
-        .modal-button {
-            min-width: 120px;
-            height: 36px;
-            padding: 0;
-            font-size: clamp(14px, 1.5vw, 16px);
-            border: 2px solid #424242 !important;
+        .slider-container label {
+            margin-right: 10px;
+            min-width: 80px;
+        }
+
+        input[type="range"] {
+            flex-grow: 1;
+            appearance: none;
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: linear-gradient(90deg, rgba(0, 195, 255, 0.3) 0%, rgba(0, 195, 255, 0.1) 100%);
+            outline: none;
+            transition: background 0.3s ease;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #00c3ff;
             cursor: pointer;
-            background: #000 !important;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 195, 255, 0.8);
+            transition: all 0.3s ease;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #00ffff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            transition: all 0.3s ease;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            transition: all 0.3s ease;
+        }
+
+        input[type="range"]::-moz-range-track {
+            transition: all 0.3s ease;
+        }
+
+        button {
+            margin-right: 10px;
+            padding: 12px 24px;
+            font-family: 'HarmonyOS Sans SC Black', sans-serif;
+            font-size: 16px;
+            color: #00c3ff;
+            background: rgba(0, 195, 255, 0.1);
+            border: 1px solid rgba(0, 195, 255, 0.5);
+            border-radius: 5px;
+            cursor: pointer;
             position: relative;
             overflow: hidden;
-            color: #fff;
-            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(0, 195, 255, 0.2),
+                transparent
+            );
+            transform: translateX(-100%);
+        }
+
+        button:hover {
+            color: #23ccff;
+            background: rgba(0, 195, 255, 0.3);
+            box-shadow: 
+                0 0 10px rgba(0, 195, 255, 0.5),
+                0 0 20px rgba(0, 195, 255, 0.3),
+                0 0 30px rgba(0, 195, 255, 0.1);
+            border-color: rgba(0, 195, 255, 0.8);
+        }
+
+        button:hover::before {
+            animation: shine 1.5s infinite;
+        }
+
+        button:active {
+            background: rgba(0, 195, 255, 0.4);
+            box-shadow: 
+                0 0 15px rgba(0, 195, 255, 0.6),
+                0 0 30px rgba(0, 195, 255, 0.4);
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translateX(-100%);
+            }
+            20%, 100% {
+                transform: translateX(100%);
+            }
+        }
+
+        #speedTypeContainer {
+            margin-bottom: 20px;
             display: flex;
-            align-items: center;
-            width: 150px;
-            pointer-events: auto; /* ?    ? ?   */
+            gap: 50px;
+            position: relative;
+            padding-left: 20px;  /* 添加左侧内边距，将选项向右移动 */
+            justify-content: flex-start;  /* 确保左对齐 */
         }
 
-        .modal-button img {
-            width: 20px;
-            height: 20px;
-            object-fit: contain;
-            margin-left: 6px; /*   С  ?  */
-            margin-right: 1px;
+        #speedTypeContainer label {
+            position: relative;
+            cursor: pointer;
+            color: rgba(0, 195, 255, 0.5);
+            transition: all 0.3s ease;
+            padding: 5px 5px;  /* 增加水平内边距 */
         }
 
-        .modal-button span {
-            flex: 1;
-            text-align: center;
-            padding-right: 15px;
-            white-space: nowrap;
-            font-weight: 1700; /*  ?  */
+        #speedTypeContainer input[type="radio"] {
+            display: none;
         }
 
-        .modal-button:hover {
-            background: #000 !important;
-            transform: none !important;
-            box-shadow: none !important;
+        #speedTypeContainer input[type="radio"]:checked + span {
+            color: #00c3ff;
+            text-shadow: 0 0 10px rgba(0, 195, 255, 0.5);
+            transition: all 0.5s ease;
         }
 
-        .modal-button:active {
-            background: #000 !important;
-            transform: none !important;
-            box-shadow: none !important;
+        #speedTypeContainer span {
+            position: relative;
+            display: inline-block;
+            bottom: -6px;
+            transition: all 0.5s ease;
         }
 
-        .modal-overlay.show {
+        #speedTypeContainer span::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: -25px;  /* 向左延伸 */
+            right: -25px; /* 向右延伸 */
+            height: 2px;
+            background: rgba(0, 195, 255, 0.3);
+            transition: all 0.5s ease;
+            transform-origin: center;
+            transform: scaleX(0.8);
+            opacity: 0.5;
+        }
+
+        #speedTypeContainer input[type="radio"]:checked + span::after {
+            background: #00c3ff;
+            box-shadow: 
+                0 0 5px #00c3ff,
+                0 0 10px #00c3ff,
+                0 0 15px #00c3ff;
+            transform: scaleX(1);
             opacity: 1;
+            bottom: -6px;  /* 这里也要相应修改 */
         }
 
-        .modal-overlay.show .modal-line {
-            height: clamp(100px, 15vh, 120px);
-            background: rgba(20, 20, 20, 0.95);
+        #speedTypeContainer label:hover span::after {
+            transform: scaleX(1);
+            background: #00c3ff;
+            opacity: 0.8;
         }
 
-        .modal-overlay.show .modal-content {
-            opacity: 1;
+        input[type="file"] {
+            margin-bottom: 20px;
+            color: #00c3ff;
+            background: rgba(0, 195, 255, 0.1);
+            border: 1px dashed rgba(0, 195, 255, 0.5);
+            padding: 10px;
+            border-radius: 4px;
+            color: #00c3ff;
+            width: calc(100% - 22px);
+            margin-bottom: 20px;
         }
 
-        body {
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: url('https://img.wjwj.top/2025/01/24/ae616e22e8cbf603a426397d3e8d4261.jpeg') center/cover no-repeat fixed;
+        input[type="file"]::-webkit-file-upload-button {
+            background: rgba(0, 195, 255, 0.2);
+            border: 1px solid rgba(0, 195, 255, 0.5);
+            color: #00c3ff;
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        h2 {
-            color: #EBF3EE;
-            font-weight: 900;
-            font-size: 24px;
-            margin: 20px;
+        input[type="file"]::-webkit-file-upload-button:hover {
+            background: rgba(0, 195, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 195, 255, 0.3);
         }
 
-        /*  ??         ? */
-        @media (max-aspect-ratio: 1/1.2) { /*      ? С  1:1.2?     */
-            body {
-                transform: rotate(90deg);
-                transform-origin: left top;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100vh;
-                height: 100vw;
-                overflow-x: hidden;
-                background-attachment: fixed;
-            }
+        #speedValue {
+            min-width: 80px;
+            text-align: right;
+            color: #00c3ff;
+        }
 
-            .modal-overlay {
-                position: fixed;
-                width: 100vh;
-                height: 100vw;
-                transform-origin: left top;
-                transform: rotate(-90deg);
-                top: 100%;
-                left: 0;
-            }
+        .neon-text {
+            color: #00c3ff;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5), 0 0 10px rgba(0, 255, 255, 0.3), 0 0 15px rgba(0, 255, 255, 0.1);
+            color: #00c3ff;
+            text-shadow: 0 0 5px rgba(0, 195, 255, 0.5),
+                         0 0 10px rgba(0, 195, 255, 0.3),
+                         0 0 15px rgba(0, 195, 255, 0.1);
+            letter-spacing: 1px;
+        }
 
-            .modal-content {
-                transform: translate(-50%, -50%) rotate(0deg);
-            }
+        #imageUpload.hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <h2>yzhhdy_慈善打卡_中间页</h2>
-    <!--    ?   HTML -->
-    <div class="modal-overlay" id="themeModal">
-        <div class="modal-line"></div>
-        <div class="modal-content">
-            <div class="modal-title">服务器在飞机上，2025/1/25 0:00-12:00 停服维护，请耐心等待</div>
-            <div class="modal-buttons">
-                <button class="modal-button confirm" id="confirmThemeChange">
-                    <img src="https://img.wjwj.top/2025/01/24/cd95be126d56be12b4adb93e41db545e.png" alt="?  ">
-                    <span>确认</span>
-                </button>
+    <div id="app">
+        <div id="controls" class="controls">
+            <input type="file" id="imageUpload" multiple accept="image/*">
+            <div id="speedTypeContainer">
+                <label>
+                    <input type="radio" name="speedType" value="fps" checked>
+                    <span>帧率</span>
+                </label>
+                <label>
+                    <input type="radio" name="speedType" value="seconds">
+                    <span>秒数</span>
+                </label>
+                <label>
+                    <input type="radio" name="speedType" value="minutes">
+                    <span>分钟</span>
+                </label>
             </div>
+            <div class="slider-container">
+                <label for="speedSlider" class="neon-text">播放速度</label>
+                <input type="range" id="speedSlider" min="1" max="100" value="50">
+                <span id="speedValue" class="neon-text">50 帧/秒</span>
+            </div>
+            <button id="playPauseBtn">播放</button>
+            <button id="resetBtn">重置</button>
         </div>
+        <div id="imageContainer"></div>
     </div>
 
     <script>
-        //      ?  ? 
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        
-        //    ü  ? ? 
-        document.addEventListener('keydown', e => {
-            if (e.ctrlKey || e.altKey || e.shiftKey) {
-                e.preventDefault();
-            }
-        });
+        const imageUpload = document.getElementById('imageUpload');
+        const speedTypeRadios = document.getElementsByName('speedType');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedValue = document.getElementById('speedValue');
+        const imageContainer = document.getElementById('imageContainer');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const controls = document.getElementById('controls');
 
-        //    ? ?   ?     ?
-        function checkTimeAndShowModal() {
-            const now = new Date();
-            const targetDate = new Date('2025-01-25');
-            
-            //      2025  1  25  
-            if (now.getFullYear() === targetDate.getFullYear() && 
-                now.getMonth() === targetDate.getMonth() && 
-                now.getDate() === targetDate.getDate()) {
-                
-                //    ?    0:00  12:00?  
-                if (now.getHours() >= 0 && now.getHours() < 12) {
-                    showModal();
-                } else {
-                    window.location.href = 'csdk.html';
-                }
+        let images = [];
+        let currentIndex = 0;
+        let intervalId = null;
+        let isPlaying = false;
+        let controlsTimeout;
+
+        imageUpload.addEventListener('change', handleImageUpload);
+        speedTypeRadios.forEach(radio => radio.addEventListener('change', updateSpeedType));
+        speedSlider.addEventListener('input', updateSpeedValue);
+        playPauseBtn.addEventListener('click', togglePlayPause);
+        resetBtn.addEventListener('click', resetPlayer);
+
+        async function handleImageUpload(e) {
+            const files = Array.from(e.target.files);
+            images = [];
+            for (const file of files) {
+                const image = await createImageBitmap(file);
+                images.push(image);
+            }
+            resetPlayer();
+        }
+
+        function updateSpeedType() {
+            const speedType = document.querySelector('input[name="speedType"]:checked').value;
+            if (speedType === 'fps') {
+                speedSlider.min = 1;
+                speedSlider.max = 100;
+                speedSlider.value = 50; 
+            } else if (speedType === 'seconds') {
+                speedSlider.min = 1;
+                speedSlider.max = 60;
+                speedSlider.value = 5;
+            } else { // minutes
+                speedSlider.min = 1;
+                speedSlider.max = 10;
+                speedSlider.value = 1;
+            }
+            updateSpeedValue();
+        }
+
+        function updateSpeedValue() {
+            targetValue = parseFloat(speedSlider.value);
+            if (!animationFrame) {
+                startValue = currentValue = parseFloat(speedSlider.value);
+                animationFrame = requestAnimationFrame(updateSlider);
+            }
+        }
+
+        function updateSpeedValueDisplay(value) {
+            const speedType = document.querySelector('input[name="speedType"]:checked').value;
+            const roundedValue = Math.round(value);
+            if (speedType === 'fps') {
+                speedValue.textContent = `${roundedValue} 帧/秒`;
+            } else if (speedType === 'seconds') {
+                speedValue.textContent = `${roundedValue} 秒/张`;
             } else {
-                window.location.href = 'csdk.html';
+                speedValue.textContent = `${roundedValue} 分/张`;
+            }
+            
+            if (isPlaying) {
+                clearInterval(intervalId);
+                startPlayer();
             }
         }
 
-        //   ?     ?   
-        function showModal() {
-            themeModal.style.display = 'block';
-            // ?     ? ?        Ч
-            themeModal.offsetHeight;
-            requestAnimationFrame(() => {
-                themeModal.classList.add('show');
-            });
-        }
+        function smoothSliderMovement() {
+            let isDragging = false;
+            let animationFrame;
+            let startValue, currentValue, targetValue;
 
-        //  ??    ?   
-        function closeModal(callback) {
-            themeModal.classList.remove('show');
-            setTimeout(() => {
-                themeModal.style.display = 'none';
-                // ?  ??  ?    
-                themeModal.classList.remove('show');
-                if (typeof callback === 'function') {
-                    callback();
+            speedSlider.addEventListener('mousedown', startDragging);
+            speedSlider.addEventListener('touchstart', startDragging);
+            document.addEventListener('mouseup', stopDragging);
+            document.addEventListener('touchend', stopDragging);
+            speedSlider.addEventListener('input', updateTarget);
+
+            function startDragging() {
+                isDragging = true;
+                startValue = parseFloat(speedSlider.value);
+                currentValue = startValue;
+                cancelAnimationFrame(animationFrame);
+                animationFrame = requestAnimationFrame(updateSlider);
+            }
+
+            function stopDragging() {
+                isDragging = false;
+            }
+
+            function updateTarget() {
+                targetValue = parseFloat(speedSlider.value);
+                if (!isDragging) {
+                    startValue = currentValue;
                 }
-            }, 200);
+            }
+
+            function updateSlider() {
+                if (!isDragging && Math.abs(currentValue - targetValue) < 0.1) {
+                    currentValue = targetValue;
+                    updateSpeedValueDisplay(currentValue);
+                    return;
+                }
+
+                currentValue += (targetValue - currentValue) * 0.2;
+                speedSlider.value = currentValue;
+                updateSpeedValueDisplay(currentValue);
+                animationFrame = requestAnimationFrame(updateSlider);
+            }
         }
 
-        //    ?         
-        document.getElementById('confirmThemeChange').addEventListener('click', () => {
-            closeModal(() => {
-                setTimeout(() => {
-                    //    ?  ?     ?    
-                    checkTimeAndShowModal();
-                }, 1000);
-            });
+        function togglePlayPause() {
+            if (isPlaying) {
+                pausePlayer();
+            } else {
+                startPlayer();
+            }
+        }
+
+        function startPlayer() {
+            if (images.length === 0) return;
+            pausePlayer();
+            isPlaying = true;
+            playPauseBtn.textContent = '暂停';
+            imageUpload.classList.add('hidden'); // 隐藏上传区域
+            const speedType = document.querySelector('input[name="speedType"]:checked').value;
+            let interval;
+            if (speedType === 'fps') {
+                interval = 1000 / speedSlider.value;
+            } else if (speedType === 'seconds') {
+                interval = speedSlider.value * 1000;
+            } else {
+                interval = speedSlider.value * 60 * 1000;
+            }
+            intervalId = setInterval(showNextImage, interval);
+            setTimeout(hideControls, 3000);
+        }
+
+        function pausePlayer() {
+            clearInterval(intervalId);
+            isPlaying = false;
+            playPauseBtn.textContent = '播放';
+            imageUpload.classList.remove('hidden'); // 显示上传区域
+            showControls();
+        }
+
+        function resetPlayer() {
+            pausePlayer();
+            currentIndex = 0;
+            showCurrentImage();
+        }
+
+        function showNextImage() {
+            if (images.length === 0) return;
+            currentIndex = (currentIndex + 1) % images.length;
+            if (currentIndex === 0) {
+                // 移除一轮播放完成后显示控制区的行为
+                const speedType = document.querySelector('input[name="speedType"]:checked').value;
+                const interval = speedType === 'fps' ? 1000 / speedSlider.value : speedSlider.value * 1000;
+                clearInterval(intervalId);
+                intervalId = setInterval(showNextImage, interval);
+            }
+            showCurrentImage();
+        }
+
+        function showCurrentImage() {
+            if (images.length === 0) {
+                imageContainer.innerHTML = '<p class="neon-text">未上传图片</p>';
+                return;
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const ctx = canvas.getContext('2d');
+            
+            // 设置白色背景
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            const img = images[currentIndex];
+            const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+            const x = (canvas.width / 2) - (img.width / 2) * scale;
+            const y = (canvas.height / 2) - (img.height / 2) * scale;
+            
+            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+            
+            imageContainer.innerHTML = '';
+            imageContainer.appendChild(canvas);
+        }
+
+        function hideControls() {
+            controls.classList.add('hidden');
+        }
+
+        function showControls() {
+            controls.classList.remove('hidden');
+        }
+
+        document.addEventListener('mousemove', () => {
+            showControls();
+            clearTimeout(controlsTimeout);
+            if (isPlaying) {
+                controlsTimeout = setTimeout(hideControls, 3000);
+            }
         });
 
-        //  ?    ?    ?       
-        // themeModal.addEventListener('click', (e) => {
-        //     if(e.target === themeModal) {
-        //         closeModal();
-        //     }
-        // });
-
-        // ?     ?       
-        document.addEventListener('DOMContentLoaded', checkTimeAndShowModal);
-
-        //  ? ? е orientationchange  load ?       
-        //      μ?? 仯   
-        window.addEventListener('resize', function() {
-            document.body.style.transition = 'transform 0.3s ease';
-            // ?        ?    ?Ч  ?  
-            document.body.offsetHeight;
+        window.addEventListener('resize', () => {
+            showCurrentImage();
         });
 
-        // ?       ?  ?     Ч         ?    ? ?   
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                document.body.style.transition = 'none';
-            }, 300);
+        // 禁用右键菜单
+        document.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
         });
+
+        smoothSliderMovement();
+        updateSpeedType();
     </script>
 </body>
 </html>
+
